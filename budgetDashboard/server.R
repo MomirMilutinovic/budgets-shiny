@@ -55,22 +55,47 @@ shinyServer(function(input, output) {
         
     })
     
-    output$treemap <- renderPlot({
+    output$rashodiTreemap <- renderPlotly({
         df <- rashodi %>% filter(grad == input$grad) %>%
             group_by(ekonomska_klasifikacija)
-        df <- summarise(df, budzet = sum(budzet))
-        df <- df %>% top_n(n = 5) %>% arrange(budzet)
+        df <- summarise(df, budzet = sum(budzet), parent = unique(programska_klasifikacija)[1])
         df$budzet <- df$budzet * -1
         
+        plot_ly(
+            type='treemap',
+            labels=df$ekonomska_klasifikacija,
+            parents=NA,
+            values= df$budzet)
         
-        df %>% ggplot(aes(x=ekonomska_klasifikacija, y=budzet, area = budzet, fill = ekonomska_klasifikacija)) +
-            geom_treemap() +
-            theme(text = element_text(size=12)) +
-            scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
-            ggtitle("Prvih 5 stavki po rashodu") +
-            xlab("Stavka") +
-            ylab("Rashod u RSD") +
-            theme_minimal()
     })
-
+    
+    
+    output$prihodiTreemap <- renderPlotly({
+        df <- prihodi %>% filter(grad == input$grad) %>%
+            group_by(ekonomska_klasa)
+        df <- summarise(df, budzet = sum(budzet))
+        
+        plot_ly(
+            type='treemap',
+            labels=df$ekonomska_klasa,
+            parents=NA,
+            values= df$budzet)
+    })
+    
+    output$prihodiCard <- renderUI({
+       h3("Prihodi", style = "color: green")
+    })
+    
+    output$rashodiCard <- renderUI({
+        div(class = "card",
+        div(class = "card-body",
+            h3("Rashodi", style = "color: red")
+            )
+        )
+        
+    })
+    
+    output$dohodakCard <- renderUI({
+        h3("Dohodak")
+    })
 })

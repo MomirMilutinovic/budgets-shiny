@@ -11,13 +11,14 @@ library(shiny)
 library(tidyverse)
 library(shinythemes)
 library(plotly)
+library(treemapify)
 
 prihodi <- read_csv("../data/prihodi.csv")
 rashodi <- read_csv("../data/rashodi.csv")
 
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
-    theme = shinytheme(theme = "flatly"),
+    theme = shinytheme(theme = "paper"),
 
     # Application title
     titlePanel("Budžeti gradova Srbije"),
@@ -32,14 +33,32 @@ shinyUI(fluidPage(
         # Show a plot of the generated distribution
         mainPanel(
             fluidRow(
+                column(4,
+                       htmlOutput("prihodiCard", class = "card")
+                ),
+                column(4,
+                       htmlOutput("rashodiCard")
+                ),
+                column(4,
+                       htmlOutput("dohodakCard", class = "card")
+                )
+            ),
+            fluidRow(
                 column(6,
                        plotlyOutput("topPrihodi")
                 ),
                 column(6,
                        plotlyOutput("topRashodi")
-                ),
+                )
             ),
-            plotOutput("treemap")
+            fluidRow(
+                column(6,
+                       plotlyOutput("prihodiTreemap")
+                ),
+                column(6,
+                       plotlyOutput("rashodiTreemap")
+                ),
+            )
             
         )
     )
