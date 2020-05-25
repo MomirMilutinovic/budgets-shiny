@@ -1,0 +1,109 @@
+---
+title: "Budžeti Gradova Srbije"
+output: flexdashboard::flex_dashboard
+runtime: shiny
+---
+
+```{r global, include=FALSE}
+library(readr)
+library(shiny)
+library(plotly)
+library(tidyverse)
+prihodi <- read_csv("data/prihodi.csv")
+rashodi <- read_csv("data/rashodi.csv")
+```
+
+Column {.sidebar}
+-----------------------------------------------------------------------
+```{r}
+selectInput("grad", "Izaberite grad", unique(prihodi$grad))
+```
+
+Column 
+-----------------------------------------------------------------------
+### Prvih 5 stavki po prihodu {data-padding=10}
+```{r}
+renderPlotly({
+        
+        df <- prihodi %>% filter(grad == input$grad) %>%
+            group_by(grupa)
+        df <- summarise(df, budzet = sum(budzet))
+        df <- df %>% top_n(n = 5, wt = budzet) %>% arrange(budzet)
+        
+        df$grupa <- factor(df$grupa, levels = df$grupa[order(df$budzet)])
+        plot <- df %>% ggplot(aes(x=grupa, y=budzet)) +
+            geom_col(fill = "green", color="black") +
+            theme(text = element_text(size=12)) +
+            scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
+            ggtitle("Prvih 5 stavki po prihodu") +
+            xlab("Stavka") +
+            ylab("Prihod u RSD") +
+            theme_minimal()
+        
+        ggplotly(plot)
+
+    })
+```
+
+### Distribucija prihoda po stavkama {data-padding=10}
+```{r}
+renderPlotly({
+        
+        df <- prihodi %>% filter(grad == input$grad) %>%
+            group_by(ekonomska_klasa)
+        df <- summarise(df, budzet = sum(budzet))
+        
+      plot_ly(
+              type='treemap',
+              labels=df$ekonomska_klasa,
+              parents=NA,
+              values= df$budzet)
+      })
+```
+
+Column 
+-----------------------------------------------------------------------
+
+### Prvih 5 stavki po rashodu {data-padding=10}
+```{r}
+renderPlotly({
+        
+        df <- rashodi %>% filter(grad == input$grad) %>%
+                group_by(funkcija)
+        df <- summarise(df, budzet = sum(budzet))
+        df$budzet <- df$budzet * -1
+        df <- df %>% top_n(n = 5, wt = budzet) %>% arrange(budzet)
+        
+        
+        df$funkcija <- factor(df$funkcija, levels = df$funkcija[order(df$budzet)])
+        plot <- df %>% ggplot(aes(x=funkcija, y=budzet)) +
+            geom_col(fill= "red", color="black") +
+            theme(text = element_text(size=12)) +
+            scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
+            ggtitle("Prvih 5 stavki po rashodu") +
+            xlab("Stavka") +
+            ylab("Rashod u RSD") +
+            theme_minimal()
+        
+        ggplotly(plot)
+        
+    })
+```
+
+### Distribucija rashoda po stavkama {data-padding=10}
+```{r}
+renderPlotly({
+        
+        df <- rashodi %>% filter(grad == input$grad) %>%
+            group_by(ekonomska_klasifikacija)
+        df <- summarise(df, budzet = sum(budzet), parent = unique(programska_klasifikacija)[1])
+        df$budzet <- df$budzet * -1
+        
+        plot_ly(
+            type='treemap',
+            labels=df$ekonomska_klasifikacija,
+            parents=NA,
+            values= df$budzet)
+        
+    })
+```
