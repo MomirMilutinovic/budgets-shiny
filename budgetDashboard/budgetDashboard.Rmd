@@ -1,6 +1,10 @@
 ---
-title: "Budžeti Gradova Srbije"
-output: flexdashboard::flex_dashboard
+title: "Budžeti gradova Srbije"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    social: menu
+    source_code: https://git.io/Jfwiu
 runtime: shiny
 ---
 
@@ -9,17 +13,24 @@ library(readr)
 library(shiny)
 library(plotly)
 library(tidyverse)
+library(flexdashboard)
+library(DT)
 prihodi <- read_csv("data/prihodi.csv")
 rashodi <- read_csv("data/rashodi.csv")
 ```
 
-Column {.sidebar}
------------------------------------------------------------------------
+Sidebar {.sidebar}
+======================================================================
 ```{r}
 selectInput("grad", "Izaberite grad", unique(prihodi$grad))
 ```
 
-Column 
+Dashboard
+======================================================================
+
+
+
+Row 
 -----------------------------------------------------------------------
 ### Prvih 5 stavki po prihodu {data-padding=10}
 ```{r}
@@ -44,25 +55,6 @@ renderPlotly({
 
     })
 ```
-
-### Distribucija prihoda po stavkama {data-padding=10}
-```{r}
-renderPlotly({
-        
-        df <- prihodi %>% filter(grad == input$grad) %>%
-            group_by(ekonomska_klasa)
-        df <- summarise(df, budzet = sum(budzet))
-        
-      plot_ly(
-              type='treemap',
-              labels=df$ekonomska_klasa,
-              parents=NA,
-              values= df$budzet)
-      })
-```
-
-Column 
------------------------------------------------------------------------
 
 ### Prvih 5 stavki po rashodu {data-padding=10}
 ```{r}
@@ -90,6 +82,25 @@ renderPlotly({
     })
 ```
 
+Row
+-----------------------------------------------------------------------
+
+### Distribucija prihoda po stavkama {data-padding=10}
+```{r}
+renderPlotly({
+        
+        df <- prihodi %>% filter(grad == input$grad) %>%
+            group_by(ekonomska_klasa)
+        df <- summarise(df, budzet = sum(budzet))
+        
+      plot_ly(
+              type='treemap',
+              labels=df$ekonomska_klasa,
+              parents=NA,
+              values= df$budzet)
+      })
+```
+
 ### Distribucija rashoda po stavkama {data-padding=10}
 ```{r}
 renderPlotly({
@@ -106,4 +117,60 @@ renderPlotly({
             values= df$budzet)
         
     })
+```
+
+Tabela
+======================================================================
+Row
+-----------------------------------------------------------------------
+### Prihodi {.value-box}
+
+```{r}
+
+renderValueBox({
+  df <- prihodi %>% filter(grad == input$grad)
+  ukupni_prihodi <- sum(df$budzet)
+  valueBox(ukupni_prihodi, icon = "fas fa-money-bill-wave")
+})
+```
+
+### Rashodi {.value-box}
+
+```{r}
+
+renderValueBox({
+  df <- rashodi %>% filter(grad == input$grad)
+  ukupni_rashodi <- sum(df$budzet) * -1
+  valueBox(ukupni_rashodi, icon = "fas fa-money-bill-wave")
+})
+```
+
+
+### Dohodak {.value-box}
+
+```{r}
+renderValueBox({
+  pr <- prihodi %>% filter(grad == input$grad)
+  ra <- rashodi %>% filter(grad == input$grad)
+  dohodak <- sum(pr$budzet) + sum(ra$budzet)
+  valueBox(dohodak, icon = "fas fa-money-bill-wave")
+})
+```
+
+Row {.tabset}
+-----------------------------------------------------------------------
+
+### Prihodi
+```{r}
+renderTable({
+  df <- prihodi %>% filter(grad == input$grad)
+  df %>% select(-c(grad, X1))
+})
+```
+
+### Rashodi
+```{r}
+renderTable({
+  df <- rashodi %>% filter(grad == input$grad)
+  df %>% select(-c(grad, X1))})
 ```
