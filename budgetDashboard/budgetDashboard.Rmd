@@ -89,38 +89,55 @@ renderPlotly({
 Row
 -----------------------------------------------------------------------
 
-### Distribucija prihoda po stavkama {data-padding=10}
+### Struktura prihoda po stavkama {data-padding=10}
 ```{r}
 renderPlotly({
-        
-        df <- prihodi %>% filter(grad == input$grad) %>%
-            group_by(ekonomska_klasa)
-        df <- summarise(df, budzet = sum(budzet) + sum(sopstveni_izvori) + sum(ostali_izvori))
-        
-      plot_ly(
-              type='treemap',
-              labels=df$ekonomska_klasa,
-              parents=NA,
-              values= df$budzet)
-      })
+  df <- prihodi %>% filter(grad == input$grad)
+  
+  # Several grupa's can have the same ekonomska_klasa inside them so we need a group by both of these variables to make them unique
+  # We will take the sum of the groups (tibble groups) as their budgets since the functions of their entries are similar enough
+  df <- df %>% group_by(ekonomska_klasa, grupa)
+  df <- df %>% summarise(ukupno = sum(ukupno))
+  df <- as.data.frame(df) %>% mutate(ekonomska_klasa = paste(ekonomska_klasa, "-", grupa))
+  
+  df_by_grupa <- prihodi %>% filter(grad == input$grad) %>%
+    group_by(grupa)
+  df_by_grupa <- df_by_grupa %>% summarise(budzet = sum(ukupno))
+  
+  plot_ly(
+    type='treemap',
+    branchvalues="total",
+    labels=c(df_by_grupa$grupa, df$ekonomska_klasa),
+    parents=c(rep(NA, length(df_by_grupa$grupa)), df$grupa),
+    values= c(df_by_grupa$budzet, df$ukupno))
+})
 ```
 
-### Distribucija rashoda po stavkama {data-padding=10}
+### Struktura rashoda po stavkama {data-padding=10}
 ```{r}
 renderPlotly({
         
-        df <- rashodi %>% filter(grad == input$grad) %>%
-            group_by(ekonomska_klasifikacija)
-        df <- summarise(df, budzet = sum(budzet) + sum(sopstveni_izvori) + sum(ostali_izvori), parent = unique(programska_klasifikacija)[1])
-        df$budzet <- df$budzet * -1
+  df <- rashodi %>% filter(grad == input$grad)
+  df$ukupno <- df$ukupno * -1
+  
+  # Several funkcija's can have the same ekonomska_klasifikacija inside them so we need a group by both of these variables to make them unique
+  # We will take the sum of the groups (tibble groups) as their budgets since the functions of their entries are similar enough
+  df <- df %>% group_by(ekonomska_klasifikacija, funkcija)
+  df <- df %>% summarise(ukupno = sum(ukupno))
+  df <- as.data.frame(df) %>%  mutate(ekonomska_klasifikacija = paste(ekonomska_klasifikacija, "-", funkcija))
+  
+  df_by_grupa <- rashodi %>% filter(grad == input$grad) %>%
+    group_by(funkcija)
+  df_by_grupa <- df_by_grupa %>% summarise(budzet = sum(ukupno) * -1)
+  
+  plot_ly(
+    type='treemap',
+    branchvalues="total",
+    labels=c(df_by_grupa$funkcija, df$ekonomska_klasifikacija),
+    parents=c(rep(NA, length(df_by_grupa$funkcija)), df$funkcija),
+    values= c(df_by_grupa$budzet, df$ukupno))
         
-        plot_ly(
-            type='treemap',
-            labels=df$ekonomska_klasifikacija,
-            parents=NA,
-            values= df$budzet)
-        
-    })
+})
 ```
 
 Tabela
@@ -156,7 +173,6 @@ renderValueBox({
 renderValueBox({
   pr <- prihodi %>% filter(grad == input$grad)
   ra <- rashodi %>% filter(grad == input$grad)
-  # TODO Turn all these sums into one mutate and use that
   dohodak <- sum(pr$ukupno) + sum(ra$ukupno)
   
   valueBox(dohodak, icon = "fas fa-money-bill-wave")
