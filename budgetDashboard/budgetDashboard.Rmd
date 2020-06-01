@@ -17,6 +17,8 @@ library(flexdashboard)
 library(DT)
 prihodi <- read_csv("data/prihodi.csv")
 rashodi <- read_csv("data/rashodi.csv")
+prihodi <- prihodi %>% mutate(ukupno = budzet + sopstveni_izvori + ostali_izvori)
+rashodi <- rashodi %>% mutate(ukupno = budzet + sopstveni_izvori + ostali_izvori)
 ```
 
 Sidebar {.sidebar}
@@ -38,7 +40,7 @@ renderPlotly({
         
         df <- prihodi %>% filter(grad == input$grad) %>%
             group_by(grupa)
-        df <- summarise(df, budzet = sum(budzet) + sum(sopstveni_izvori) + sum(ostali_izvori))
+        df <- summarise(df, budzet = sum(ukupno))
         df <- df %>% arrange(desc(budzet))
         df <- df[1:5,] # In case there are multiple rows with the same budget
         
@@ -63,7 +65,7 @@ renderPlotly({
         
         df <- rashodi %>% filter(grad == input$grad) %>%
                 group_by(funkcija)
-        df <- summarise(df, budzet = sum(budzet) + sum(sopstveni_izvori) + sum(ostali_izvori))
+        df <- summarise(df, budzet = sum(ukupno))
         df$budzet <- df$budzet * -1
         df <- df %>% arrange(desc(budzet))
         df <- df[1:5,] # In case there are multiple rows with the same budget
@@ -131,7 +133,7 @@ Row
 
 renderValueBox({
   df <- prihodi %>% filter(grad == input$grad)
-  ukupni_prihodi <- sum(df$budzet) + sum(df$sopstveni_izvori) + sum(df$ostali_izvori)
+  ukupni_prihodi <- sum(df$ukupno)
   valueBox(ukupni_prihodi, icon = "fas fa-money-bill-wave")
 })
 ```
@@ -142,7 +144,7 @@ renderValueBox({
 
 renderValueBox({
   df <- rashodi %>% filter(grad == input$grad)
-  ukupni_rashodi <- (sum(df$budzet) + sum(df$sopstveni_izvori) + sum(df$ostali_izvori)) * -1
+  ukupni_rashodi <- sum(df$ukupno) * -1
   valueBox(ukupni_rashodi, icon = "fas fa-money-bill-wave")
 })
 ```
@@ -155,7 +157,7 @@ renderValueBox({
   pr <- prihodi %>% filter(grad == input$grad)
   ra <- rashodi %>% filter(grad == input$grad)
   # TODO Turn all these sums into one mutate and use that
-  dohodak <- (sum(pr$budzet) + sum(pr$sopstveni_izvori) + sum(pr$ostali_izvori)) + (sum(ra$budzet) + sum(ra$sopstveni_izvori) + sum(ra$ostali_izvori))
+  dohodak <- sum(pr$ukupno) + sum(ra$ukupno)
   
   valueBox(dohodak, icon = "fas fa-money-bill-wave")
 })
