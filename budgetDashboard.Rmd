@@ -20,7 +20,7 @@ rashodi <- read_csv("data/rashodi.csv")
 prihodi <- prihodi %>% mutate(ukupno = budzet + sopstveni_izvori + ostali_izvori)
 rashodi <- rashodi %>% mutate(ukupno = budzet + sopstveni_izvori + ostali_izvori)
 
-source("../functions.R")
+source("functions.R")
 ```
 
 Sidebar {.sidebar}
