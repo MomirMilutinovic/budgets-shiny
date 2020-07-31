@@ -32,7 +32,7 @@ pripremi_prihod_rashod <- function(prihod, rashod, city)
                                  function(x){x * -1})
   
   names(prihod)[1:7] <- c("klasa", "kategorija", "grupa", "ekonomska_klasa", "budzet", "sopstveni_izvori", "ostali_izvori")
-  names(rashod)[1:7] <- c("program", "programska_klasifikacija", "funkcija", "ekonomska_klasifikacija", "budzet", "sopstveni_izvori", "ostali_izvori")
+  names(rashod)[1:7] <- names(prihod)[1:7]
   
   prihod <- prihod %>% mutate(grad = city)
   rashod <- rashod %>% mutate(grad = city)
