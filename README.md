@@ -9,4 +9,7 @@ Run budgetDashboard.Rmd and you should be ready to go.
 You can also see the dashboard in action at: <https://floatingduck.shinyapps.io/budgetDashboard/> 
 
 ## Directory structure
-The data directory contains both the raw data for individual cities in the form excel tables, and the earnings and expenses for all of the cities in prihodi.csv, and rashodi.csv.  
+- The data directory contains both the raw data for individual cities in the form excel tables, and the earnings and expenses for all of the cities in prihodi.csv, and rashodi.csv. 
+- budgetDashboard.Rmd is the dashboard.
+- functions.R contains various functions for visualizing the data and preparing it for visualization
+- prepareData.R merges the raw data and writes it to prihodi.csv and rashodi.csv in a cleaner form
