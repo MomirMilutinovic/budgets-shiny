@@ -5,8 +5,8 @@ account: floatingduck
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2346801
-bundleId: 3460699
+bundleId: 3460723
 url: https://floatingduck.shinyapps.io/budgetDashboard/
-when: 1596224277.25927
+when: 1596224771.74663
 asMultiple: FALSE
 asStatic: FALSE

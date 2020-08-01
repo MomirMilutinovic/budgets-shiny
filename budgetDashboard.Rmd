@@ -28,8 +28,10 @@ Sidebar {.sidebar}
 ```{r}
 selectInput("grad", "Izaberite grad", unique(prihodi$grad))
 ```
+Na glavnoj stranici se nalaze interaktivne vizualizacije budžeta. Stavite kursor na neki od stubova da biste videli tačan iznos. Na graficima distribucija prihoda i rashoda možete kliknuti na pravougaonike da biste ih uvećali. Na stranici „Tabela“ možete naći podatke o budžetu u tabelarnoj formi i informacije o ukupnom prihodu i rashodu.  
+Podaci o budžetu su za 2020. godinu i mogu se pronaći na [portalu otvorenih podataka](https://data.gov.rs/sr/search/?q=%D0%B1%D1%83%D1%9F%D0%B5%D1%82).
 
-Dashboard
+Glavna
 ======================================================================
 
 
@@ -41,7 +43,7 @@ Row
 renderPlotly({
   df <- prepare_data_for_barplot(prihodi, input$grad)
   
-  plot <- plot_top_earning_or_spending(df, "Prvih 5 funkcija po prihodu", "Funkcija", "Prihod", "green")
+  plot <- plot_top_earning_or_spending(df, "Prvih 5 grupa po prihodu", "Grupa", "Prihod", "green")
   ggplotly(plot)
 })
 ```
@@ -53,7 +55,7 @@ renderPlotly({
   df$ukupno <- df$ukupno * -1
   df <- prepare_data_for_barplot(df, input$grad)
   
-  plot <- plot_top_earning_or_spending(df, "Prvih 5 funkcija po rashodu", "Funkcija", "Rashod", "red")
+  plot <- plot_top_earning_or_spending(df, "Prvih 5 grupa po rashodu", "Grupa", "Rashod", "red")
   ggplotly(plot)
         
 })
