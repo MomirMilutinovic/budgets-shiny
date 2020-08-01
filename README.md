@@ -1,5 +1,5 @@
 # budgets-shiny
-Flexdashboard dashboard about the budgets of several cities in Serbia.
+Flexdashboard dashboard that visualizes the budgets of several cities in Serbia.
 
 ## Data
 The app uses budget data for Kragujevac, Niš and Priboj for the year 2020. The data is available at [Portal otvorenih podataka](https://data.gov.rs/sr/search/?q=%D0%B1%D1%83%D1%9F%D0%B5%D1%82) 
